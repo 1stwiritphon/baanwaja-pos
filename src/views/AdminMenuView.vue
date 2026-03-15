@@ -151,14 +151,13 @@ onMounted(fetchMenu)
   <div class="page-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Admin Panel</p>
+        <p class="eyebrow">ADMIN PAGE</p>
         <h1 class="page-title">จัดการเมนูร้าน</h1>
-        <p class="page-subtitle">เพิ่ม ลบ แก้ไข และเปิดปิดการขายเมนู</p>
       </div>
 
       <div class="topbar-actions">
         <RouterLink to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
+        <button class="btn btn-secondary" @click="handleLogout">Log out</button>
       </div>
     </header>
 

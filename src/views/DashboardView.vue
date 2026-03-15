@@ -167,9 +167,9 @@ onMounted(() => {
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
         <div>
-          <p class="eyebrow">BAAN WAJA</p>
-          <h1 class="page-title">แดชบอร์ดร้าน</h1>
-          <p class="page-subtitle">สรุปรายรับ รายจ่าย และรายการบิลรายวัน</p>
+          <p class="eyebrow">ADMIN PAGE</p>
+          <h1 class="page-title">DASHBOARD</h1>
+      
         </div>
       </div>
 
@@ -177,8 +177,7 @@ onMounted(() => {
         <RouterLink to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
         <RouterLink to="/admin/menu" class="btn btn-secondary">จัดการเมนู</RouterLink>
         <RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
-        <RouterLink to="/pos" class="btn btn-secondary">POS</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
+        <button class="btn btn-secondary" @click="handleLogout">Log out</button>
       </div>
     </header>
 
