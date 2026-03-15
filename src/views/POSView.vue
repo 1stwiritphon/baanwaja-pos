@@ -244,16 +244,15 @@ onMounted(() => {
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
         <div>
-          <p class="eyebrow">BAAN WAJA</p>
-          <h1 class="page-title">หน้าขายสินค้า</h1>
-          <p class="page-subtitle">เลือกเมนู บันทึกบิล แก้ไขบิล และยกเลิกบิล</p>
+          <p class="eyebrow">POS STAFF PAGE</p>
+          <h1 class="page-title">ร้านอาหารบ้านวาจา</h1>
         </div>
       </div>
 
       <div class="topbar-actions">
         <RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
-        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">แดชบอร์ด</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
+        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
+        <button class="btn btn-secondary" @click="handleLogout">Log out</button>
       </div>
     </header>
 
@@ -263,7 +262,6 @@ onMounted(() => {
           <div class="card-head">
             <div>
               <h2>เมนูทั้งหมด</h2>
-              <p>ค้นหาหรือกดเลือกเมนูได้เลย</p>
             </div>
           </div>
 

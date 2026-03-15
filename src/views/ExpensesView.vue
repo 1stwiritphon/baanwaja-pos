@@ -62,14 +62,14 @@ function handleLogout() {
   <div class="page-shell">
     <header class="topbar">
       <div>
-        <h1 class="page-title">เพิ่มรายจ่าย</h1>
+        <h1 class="page-title">รายจ่าย</h1>
         <p class="page-subtitle">บันทึกค่าใช้จ่ายของร้านในแต่ละวัน</p>
       </div>
 
       <div class="topbar-actions">
         <RouterLink to="/pos" class="btn btn-secondary">กลับหน้า POS</RouterLink>
-        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">แดชบอร์ด</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
+        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
+        <button class="btn btn-secondary" @click="handleLogout">Log out</button>
       </div>
     </header>
 
