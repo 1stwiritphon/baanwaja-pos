@@ -54,9 +54,9 @@ async function handleLogin() {
           class="auth-logo"
         />
         <div class="auth-brand-text">
-          <h1 class="auth-title">เข้าสู่ระบบร้านบ้านวาจา</h1>
+          <h1 class="auth-title">เข้าสู่ระบบ</h1>
           <p class="auth-subtitle">
-            ระบบจัดการร้านอาหารสำหรับพนักงานและแอดมิน
+            ระบบจัดการร้านอาหารบ้านวาจา
           </p>
         </div>
       </div>
