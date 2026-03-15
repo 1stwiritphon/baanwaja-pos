@@ -341,6 +341,7 @@ export const fixedMenuItems = [
   { key: 'ข้าวเกรียบทอด', name: 'ข้าวเกรียบทอด', category: 'ของทานเล่น', price: 60 },
   { key: 'ยำเม็ดมะม่วง', name: 'ยำเม็ดมะม่วง', category: 'ของทานเล่น', price: 70 },
   { key: 'ไก่ตีแปลง', name: 'ไก่ตีแปลง', category: 'ของทานเล่น', price: 80 },
+  
 ]
 
 export function getAllowedProteins(menu) {

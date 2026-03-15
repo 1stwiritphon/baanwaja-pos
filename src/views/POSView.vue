@@ -35,9 +35,13 @@ const customItemForm = ref({
 const latestSavedBills = ref([])
 const loadingLatestBills = ref(false)
 
+const selectedDrink = ref(null)
+const drinkModalOpen = ref(false)
+
 const allMenuItems = computed(() => [
   ...customMenus.map((item) => ({ ...item, source: 'custom-config' })),
   ...fixedMenuItems.map((item) => ({ ...item, source: 'fixed-direct' })),
+  ...drinkItems.map((item)=>({...item,source:'drink-option'})),
   ...dbMenu.value.map((item) => ({
     key: item.id,
     name: item.name,
@@ -117,14 +121,30 @@ async function fetchLatestBills() {
   loadingLatestBills.value = false
 }
 
-function openMenuItem(item) {
-  if (item.source === 'custom-config') {
-    selectedCustomMenu.value = item
-    customModalOpen.value = true
-    return
-  }
+function openMenuItem(item){
 
-  addDirectItem(item.name, Number(item.price), item.source === 'db-direct' ? item.id : null)
+if(item.source==='custom-config'){
+selectedCustomMenu.value=item
+customModalOpen.value=true
+return
+}
+
+if(item.source==='drink-option'){
+selectedDrink.value=item
+drinkModalOpen.value=true
+return
+}
+
+addDirectItem(item.name,Number(item.price))
+
+}
+
+function addConfiguredDrink(payload){
+
+addDirectItem(payload.name,payload.price)
+drinkModalOpen.value=false
+selectedDrink.value=null
+
 }
 
 function addDirectItem(name, price, menuId = null) {
@@ -488,5 +508,12 @@ onMounted(() => {
       @close="customModalOpen = false"
       @add="addConfiguredMenu"
     />
+
+    <DrinkOptionModal
+:open="drinkModalOpen"
+:drink="selectedDrink"
+@close="drinkModalOpen=false"
+@add="addConfiguredDrink"
+/>
   </div>
 </template>
