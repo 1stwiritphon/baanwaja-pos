@@ -67,8 +67,21 @@ function handleLogout() {
       </div>
 
       <div class="topbar-actions">
-        <RouterLink to="/pos" class="btn btn-secondary">กลับหน้า POS</RouterLink>
-        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
+        <RouterLink
+  v-if="user?.role === 'staff'"
+  to="/pos"
+  class="btn btn-secondary"
+>
+  กลับหน้า POS
+</RouterLink>
+
+<RouterLink
+  v-if="user?.role === 'admin'"
+  to="/admin/dashboard"
+  class="btn btn-secondary"
+>
+  Dashboard
+</RouterLink>
         <button class="btn btn-secondary" @click="handleLogout">Log out</button>
       </div>
     </header>
