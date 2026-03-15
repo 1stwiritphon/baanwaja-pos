@@ -3,16 +3,23 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
+import CustomMenuModal from '../components/CustomMenuModal.vue'
+import { customMenus, fixedMenuItems } from '../data/menuOptions'
+import DrinkOptionModal from '../components/DrinkOptionModal.vue'
+import { drinkItems } from '../data/menuOptions'
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
 
 const selectedCategory = ref('ทั้งหมด')
 const searchText = ref('')
-const menu = ref([])
+const dbMenu = ref([])
 const cart = ref([])
 const loading = ref(false)
 const saving = ref(false)
+
+const selectedCustomMenu = ref(null)
+const customModalOpen = ref(false)
 
 const billInfo = ref({
   village: '',
@@ -28,21 +35,34 @@ const customItemForm = ref({
 const latestSavedBills = ref([])
 const loadingLatestBills = ref(false)
 
+const allMenuItems = computed(() => [
+  ...customMenus.map((item) => ({ ...item, source: 'custom-config' })),
+  ...fixedMenuItems.map((item) => ({ ...item, source: 'fixed-direct' })),
+  ...dbMenu.value.map((item) => ({
+    key: item.id,
+    name: item.name,
+    category: item.category,
+    price: Number(item.price),
+    source: 'db-direct',
+    id: item.id,
+  })),
+])
+
 const categories = computed(() => {
-  const unique = [...new Set(menu.value.map(item => item.category))]
+  const unique = [...new Set(allMenuItems.value.map((item) => item.category))]
   return ['ทั้งหมด', ...unique]
 })
 
 const filteredMenu = computed(() => {
-  let items = menu.value
+  let items = allMenuItems.value
 
   if (selectedCategory.value !== 'ทั้งหมด') {
-    items = items.filter(item => item.category === selectedCategory.value)
+    items = items.filter((item) => item.category === selectedCategory.value)
   }
 
   if (searchText.value.trim()) {
     const keyword = searchText.value.trim().toLowerCase()
-    items = items.filter(item => item.name.toLowerCase().includes(keyword))
+    items = items.filter((item) => item.name.toLowerCase().includes(keyword))
   }
 
   return items
@@ -63,6 +83,7 @@ async function fetchMenu() {
     .from('menu')
     .select('*')
     .eq('active', true)
+    .in('category', ['เครื่องดื่ม', 'ขนม', 'ไอติม'])
     .order('category', { ascending: true })
     .order('name', { ascending: true })
 
@@ -70,7 +91,7 @@ async function fetchMenu() {
     console.error(JSON.stringify(error, null, 2))
     alert(error?.message || 'โหลดเมนูไม่สำเร็จ')
   } else {
-    menu.value = data || []
+    dbMenu.value = data || []
   }
 
   loading.value = false
@@ -96,20 +117,39 @@ async function fetchLatestBills() {
   loadingLatestBills.value = false
 }
 
-function addToCart(item) {
-  const found = cart.value.find(i => i.type === 'menu' && i.id === item.id)
+function openMenuItem(item) {
+  if (item.source === 'custom-config') {
+    selectedCustomMenu.value = item
+    customModalOpen.value = true
+    return
+  }
+
+  addDirectItem(item.name, Number(item.price), item.source === 'db-direct' ? item.id : null)
+}
+
+function addDirectItem(name, price, menuId = null) {
+  const found = cart.value.find(
+    (i) => i.name === name && i.price === Number(price) && i.menu_id === menuId
+  )
 
   if (found) {
     found.qty += 1
   } else {
     cart.value.push({
-      type: 'menu',
-      id: item.id,
-      name: item.name,
-      price: Number(item.price),
+      type: menuId ? 'db' : 'custom',
+      id: `item-${Date.now()}-${Math.random()}`,
+      menu_id: menuId,
+      name,
+      price: Number(price),
       qty: 1,
     })
   }
+}
+
+function addConfiguredMenu(payload) {
+  addDirectItem(payload.name, payload.price, null)
+  customModalOpen.value = false
+  selectedCustomMenu.value = null
 }
 
 function addCustomItem() {
@@ -121,24 +161,17 @@ function addCustomItem() {
     return
   }
 
-  cart.value.push({
-    type: 'custom',
-    id: `custom-${Date.now()}`,
-    name,
-    price,
-    qty: 1,
-  })
-
+  addDirectItem(name, price, null)
   customItemForm.value = { name: '', price: '' }
 }
 
 function increaseQty(id) {
-  const item = cart.value.find(i => i.id === id)
+  const item = cart.value.find((i) => i.id === id)
   if (item) item.qty += 1
 }
 
 function decreaseQty(id) {
-  const item = cart.value.find(i => i.id === id)
+  const item = cart.value.find((i) => i.id === id)
   if (!item) return
 
   if (item.qty > 1) item.qty -= 1
@@ -146,7 +179,7 @@ function decreaseQty(id) {
 }
 
 function removeItem(id) {
-  cart.value = cart.value.filter(i => i.id !== id)
+  cart.value = cart.value.filter((i) => i.id !== id)
 }
 
 async function saveSale() {
@@ -177,9 +210,9 @@ async function saveSale() {
     return
   }
 
-  const itemsPayload = cart.value.map(item => ({
+  const itemsPayload = cart.value.map((item) => ({
     sale_id: saleData.id,
-    menu_id: item.type === 'menu' ? item.id : null,
+    menu_id: item.menu_id || null,
     item_name: item.name,
     quantity: item.qty,
     price: item.price,
@@ -244,15 +277,16 @@ onMounted(() => {
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
         <div>
-          <p class="eyebrow">POS STAFF PAGE</p>
-          <h1 class="page-title">ร้านอาหารบ้านวาจา</h1>
+          <p class="eyebrow">BAAN WAJA</p>
+          <h1 class="page-title">หน้าขายสินค้า</h1>
+          <p class="page-subtitle">เลือกเมนู บันทึกบิล แก้ไขบิล และยกเลิกบิล</p>
         </div>
       </div>
 
       <div class="topbar-actions">
         <RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
-        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">Log out</button>
+        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">แดชบอร์ด</RouterLink>
+        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
       </div>
     </header>
 
@@ -262,6 +296,7 @@ onMounted(() => {
           <div class="card-head">
             <div>
               <h2>เมนูทั้งหมด</h2>
+              <p>เมนูอาหารเลือกตัวเลือกได้ และเครื่องดื่ม/ขนมกดได้เลย</p>
             </div>
           </div>
 
@@ -292,12 +327,27 @@ onMounted(() => {
             <div v-else class="menu-grid">
               <button
                 v-for="item in filteredMenu"
-                :key="item.id"
+                :key="item.key"
                 class="menu-card"
-                @click="addToCart(item)"
+                @click="openMenuItem(item)"
               >
+                <div class="pill">
+                  {{
+                    item.source === 'custom-config'
+                      ? 'เลือกตัวเลือก'
+                      : item.source === 'fixed-direct'
+                      ? 'กดได้เลย'
+                      : item.category
+                  }}
+                </div>
                 <div class="menu-card-name">{{ item.name }}</div>
-                <div class="menu-card-price">{{ Number(item.price) }} บาท</div>
+                <div class="menu-card-price">
+                  {{
+                    item.source === 'custom-config'
+                      ? `เริ่ม ${item.basePrice} บาท`
+                      : `${Number(item.price)} บาท`
+                  }}
+                </div>
               </button>
             </div>
           </div>
@@ -431,5 +481,12 @@ onMounted(() => {
         </div>
       </div>
     </section>
+
+    <CustomMenuModal
+      :open="customModalOpen"
+      :menu="selectedCustomMenu"
+      @close="customModalOpen = false"
+      @add="addConfiguredMenu"
+    />
   </div>
 </template>
