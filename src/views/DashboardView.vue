@@ -174,7 +174,7 @@ onMounted(() => {
       </div>
 
       <div class="topbar-actions">
-        <RouterLink to="/admin/dashboard" class="btn btn-secondary">Dashboard</RouterLink>
+       
         <RouterLink to="/admin/menu" class="btn btn-secondary">จัดการเมนู</RouterLink>
         <RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
         <button class="btn btn-secondary" @click="handleLogout">Log out</button>
