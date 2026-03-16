@@ -354,8 +354,9 @@ fetchDashboard()
 <div class="brand-header">
 <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
 <div>
-<h1 class="page-title">BANVAJA DASHBOARD</h1>
-<p class="page-subtitle">ระบบหลังบ้านร้านอาหารบ้านวาจา</p>
+    <p class="eyebrow">BANVAJA</p>
+<h1 class="page-title">ร้านอาหารบ้านวาจา</h1>
+<p class="page-subtitle">ระบบหลังบ้านร้านอาหารบ้านวาจา สำหรับแอดมิน</p>
 </div>
 </div>
 
@@ -376,7 +377,7 @@ fetchDashboard()
 <div class="card dashboard-filter-card" style="margin-top: 20px;">
 <div class="form-grid">
 <div class="field">
-<label>เลือกวันที่ของรอบบิล</label>
+<label>เลือกวันที่รอบบิล</label>
 <input v-model="selectedDate" type="date" />
 </div>
 </div>
@@ -386,7 +387,7 @@ fetchDashboard()
 </div>
 
 <div class="form-actions">
-<button class="btn btn-primary" @click="fetchDashboard">รีเฟรชข้อมูล</button>
+<button class="btn btn-primary" @click="fetchDashboard">รีเฟรช</button>
 <button class="btn btn-secondary" @click="goToday">วันนี้</button>
 </div>
 </div>
@@ -398,7 +399,7 @@ fetchDashboard()
 <path d="M3 17l6-6 4 4 7-7"/>
 </svg>
 </div>
-<span class="stat-label">รายรับของวัน</span>
+<span class="stat-label">รายรับ</span>
 <strong class="stat-value">{{ summary.income }}</strong>
 </div>
 
@@ -408,7 +409,7 @@ fetchDashboard()
 <path d="M3 7l6 6 4-4 7 7"/>
 </svg>
 </div>
-<span class="stat-label">รายจ่ายของวัน</span>
+<span class="stat-label">รายจ่าย</span>
 <strong class="stat-value">{{ summary.expenses }}</strong>
 </div>
 
@@ -418,7 +419,7 @@ fetchDashboard()
 <circle cx="12" cy="12" r="8"/>
 </svg>
 </div>
-<span class="stat-label">กำไรของวัน</span>
+<span class="stat-label">กำไร</span>
 <strong class="stat-value">{{ summary.profit }}</strong>
 </div>
 
@@ -437,7 +438,7 @@ fetchDashboard()
 <div class="card">
 <div class="card-head">
 <div>
-<h2>บิลของวันนั้น</h2>
+<h2>บิลวันนี้</h2>
 <p>{{ loading ? 'กำลังโหลด...' : 'แสดงหน้าละ 5 บิล' }}</p>
 </div>
 </div>
@@ -534,7 +535,7 @@ class="btn btn-small"
 <section class="card dashboard-expense-card" style="margin-top: 20px;">
 <div class="card-head">
 <div>
-<h2>รายจ่ายของวันนั้น</h2>
+<h2>รายจ่ายวันนี้</h2>
 <p>รายการค่าใช้จ่ายที่ถูกบันทึกเข้ามาในระบบ</p>
 </div>
 </div>

@@ -22,7 +22,6 @@ const form = ref({
 id: null,
 name: '',
 price: '',
-base_price: '',
 category: 'ราดข้าว',
 active: true,
 source_type: 'fixed',
@@ -82,7 +81,6 @@ form.value = {
 id: null,
 name: '',
 price: '',
-base_price: '',
 category: 'ราดข้าว',
 active: true,
 source_type: 'fixed',
@@ -100,7 +98,6 @@ form.value = {
 id: item.id,
 name: item.name,
 price: Number(item.price),
-base_price: Number(item.base_price || item.price),
 category: item.category,
 active: item.active,
 source_type: item.source_type || 'fixed',
@@ -116,7 +113,6 @@ allow_ice: item.allow_ice || false,
 async function saveMenu() {
 const name = form.value.name.trim()
 const price = Number(form.value.price)
-const basePrice = Number(form.value.base_price || form.value.price)
 
 if (!name || !price || price <= 0 || !form.value.category) {
 showWarning('กรอกชื่อเมนู ราคา และหมวดหมู่ให้ถูกต้อง')
@@ -126,7 +122,7 @@ return
 const payload = {
 name,
 price,
-base_price: basePrice,
+base_price: price,
 category: form.value.category,
 active: form.value.active,
 source_type: form.value.source_type,
@@ -223,9 +219,9 @@ onMounted(fetchMenu)
 <div class="brand-header">
 <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
 <div>
-<p class="eyebrow">BAAN WAJA</p>
-<h1 class="page-title">จัดการเมนูร้าน</h1>
-<p class="page-subtitle">เมนูทั้งหมดมาจากฐานข้อมูล</p>
+<p class="eyebrow">BANVAJA</p>
+<h1 class="page-title">ร้านอาหารบ้านวาจา</h1>
+<p class="page-subtitle">ระบบเมนูอาหารของร้าน</p>
 </div>
 </div>
 
@@ -237,25 +233,22 @@ onMounted(fetchMenu)
 <div class="card-head">
 <div>
 <h2>{{ isEditing ? 'แก้ไขเมนู' : 'เพิ่มเมนูใหม่' }}</h2>
-<p>เพิ่ม ลบ แก้ไขเมนูจากฐานข้อมูลโดยตรง</p>
+<p>เพิ่ม ลบ แก้ไขเมนู</p>
 </div>
 </div>
 
 <div class="form-grid">
 <div class="field">
 <label>ชื่อเมนู</label>
-<input v-model="form.name" type="text" placeholder="เช่น กะเพรา" />
+<input v-model="form.name" type="text" placeholder="กรอกชื่อเมนู เช่น กะเพรา" />
 </div>
 
 <div class="field">
 <label>ราคา</label>
-<input v-model="form.price" type="number" placeholder="เช่น 60" />
+<input v-model="form.price" type="number" placeholder="กรอกราคา" />
 </div>
 
-<div class="field">
-<label>ราคา base</label>
-<input v-model="form.base_price" type="number" placeholder="เช่น 60" />
-</div>
+
 
 <div class="field">
 <label>หมวดหมู่</label>
@@ -307,7 +300,7 @@ onMounted(fetchMenu)
 
 <label class="admin-option-card">
 <input v-model="form.allow_ice" type="checkbox" />
-<span>เพิ่มน้ำแข็งได้</span>
+<span>เพิ่มน้ำแข็ง</span>
 </label>
 </div>
 </div>

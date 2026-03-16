@@ -311,9 +311,9 @@ onMounted(() => {
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
         <div>
-          <p class="eyebrow">BAAN WAJA</p>
-          <h1 class="page-title">หน้าขายสินค้า</h1>
-          <p class="page-subtitle">ดึงเมนูทั้งหมดจากฐานข้อมูล</p>
+          <p class="eyebrow">BANVAJA</p>
+          <h1 class="page-title">ร้านอาหารบ้านวาจา</h1>
+          <p class="page-subtitle">ระบบหลังบ้านร้านอาหารบ้านวาจา</p>
         </div>
       </div>
 
@@ -329,7 +329,7 @@ page="pos"
           <div class="card-head">
             <div>
               <h2>เมนูทั้งหมด</h2>
-              <p>เมนูและตัวเลือกมาจาก Supabase</p>
+              <p>รายการอาหารบ้านวาจา</p>
             </div>
           </div>
 
@@ -407,7 +407,7 @@ page="pos"
           <div class="card-head">
             <div>
               <h2 style="font-size:20px;">บิลล่าสุดของวันนี้</h2>
-              <p>ใช้ดู แก้ไข หรือยกเลิกบิลได้</p>
+              
             </div>
           </div>
 
@@ -453,15 +453,15 @@ page="pos"
         <div class="form-grid" style="margin-bottom:16px;">
           <div class="field">
             <label>ชื่อหมู่บ้าน</label>
-            <input v-model="billInfo.village" type="text" placeholder="ไม่กรอกก็ได้" />
+            <input v-model="billInfo.village" type="text" placeholder="ไม่บังคับกรอก" />
           </div>
           <div class="field">
             <label>บ้านเลขที่</label>
-            <input v-model="billInfo.house_no" type="text" placeholder="ไม่กรอกก็ได้" />
+            <input v-model="billInfo.house_no" type="text" placeholder="ไม่บังคับกรอก" />
           </div>
           <div class="field">
             <label>ซอย</label>
-            <input v-model="billInfo.soi" type="text" placeholder="ไม่กรอกก็ได้" />
+            <input v-model="billInfo.soi" type="text" placeholder="ไม่บังคับกรอก" />
           </div>
         </div>
 
@@ -492,7 +492,7 @@ page="pos"
           </div>
 
           <button class="btn btn-primary full-width" @click="saveSale" :disabled="saving">
-            {{ saving ? 'กำลังบันทึก...' : 'บันทึกยอดขาย' }}
+            {{ saving ? 'กำลังบันทึก...' : 'บันทึกบิล' }}
           </button>
         </div>
       </div>
