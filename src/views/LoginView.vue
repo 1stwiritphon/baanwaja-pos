@@ -67,8 +67,8 @@ router.push('/pos')
 <div class="auth-brand">
 <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="auth-logo" />
 <div>
-<h1 class="auth-title">เข้าสู่ระบบร้านบ้านวาจา</h1>
-<p class="auth-subtitle">กรุณาเข้าสู่ระบบเพื่อใช้งานระบบร้านอาหาร</p>
+<h1 class="auth-title">ร้านอาหารบ้านวาจา</h1>
+<p class="auth-subtitle">ระบบหลังบ้านร้านอาหารบ้านวาจา</p>
 </div>
 </div>
 
