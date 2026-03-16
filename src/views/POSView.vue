@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
 import { fetchCurrentMenus, fetchMenuOptions } from '../lib/menuDataService'
 import MenuOptionModal from '../components/MenuOptionModal.vue'
+import AppTopActions from '../components/AppTopActions.vue'
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -60,13 +61,46 @@ const filteredMenu = computed(() => {
 })
 
 const menuByCategory = computed(() => {
-  const grouped = {}
-  filteredMenu.value.forEach((item) => {
-    if (!grouped[item.category]) grouped[item.category] = []
-    grouped[item.category].push(item)
-  })
-  return grouped
+
+const grouped = {}
+
+menuList.value.forEach(menu => {
+
+if (!grouped[menu.category]) {
+grouped[menu.category] = []
+}
+
+grouped[menu.category].push(menu)
+
 })
+
+const order = [
+'ราดข้าว',
+'กับข้าว',
+'ยำ',
+'ของทานเล่น',
+'เครื่องดื่ม',
+'ของหวาน'
+]
+
+const sorted = {}
+
+order.forEach(cat => {
+if (grouped[cat]) {
+sorted[cat] = grouped[cat]
+}
+})
+
+Object.keys(grouped).forEach(cat => {
+if (!sorted[cat]) {
+sorted[cat] = grouped[cat]
+}
+})
+
+return sorted
+
+})
+
 
 const totalItems = computed(() => cart.value.reduce((sum, item) => sum + item.qty, 0))
 const totalPrice = computed(() => cart.value.reduce((sum, item) => sum + Number(item.price) * item.qty, 0))
@@ -258,7 +292,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="page-shell">
+  <div class="page-shell pos-background">
     <header class="topbar">
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
@@ -269,11 +303,10 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="topbar-actions">
-        <RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
-        <RouterLink v-if="user?.role === 'admin'" to="/admin/dashboard" class="btn btn-secondary">แดชบอร์ด</RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
-      </div>
+      <AppTopActions
+page="pos"
+:role="user?.role || ''"
+/>
     </header>
 
     <section class="pos-grid">

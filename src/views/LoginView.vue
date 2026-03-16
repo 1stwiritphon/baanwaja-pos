@@ -45,7 +45,7 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="auth-page">
+  <div class="auth-page pos-background">
     <div class="auth-card">
       <div class="auth-brand">
         <img

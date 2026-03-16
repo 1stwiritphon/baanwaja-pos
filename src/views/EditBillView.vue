@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { fetchCurrentMenus, fetchMenuOptions } from '../lib/menuDataService'
 import MenuOptionModal from '../components/MenuOptionModal.vue'
+import AppTopActions from '../components/AppTopActions.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -260,7 +261,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="page-shell">
+  <div class="page-shell pos-background">
     <header class="topbar">
       <div class="brand-header">
         <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
@@ -271,12 +272,10 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="topbar-actions">
-        <RouterLink :to="user?.role === 'admin' ? '/admin/dashboard' : '/pos'" class="btn btn-secondary">
-          กลับ
-        </RouterLink>
-        <button class="btn btn-secondary" @click="handleLogout">ออกจากระบบ</button>
-      </div>
+      <AppTopActions
+page="pos"
+:role="user?.role || ''"
+/>
     </header>
 
     <div v-if="loading" class="card">

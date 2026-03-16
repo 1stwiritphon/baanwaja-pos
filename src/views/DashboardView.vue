@@ -4,9 +4,10 @@ import { RouterLink, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
 import WeeklySalesChart from '../components/WeeklySalesChart.vue'
+import AppTopActions from '../components/AppTopActions.vue'
 
 const router = useRouter()
-
+const user = JSON.parse(localStorage.getItem('user') || 'null')
 const summary = ref({
 income: 0,
 expenses: 0,
@@ -243,7 +244,7 @@ fetchDashboard()
 </script>
 
 <template>
-<div class="page-shell">
+<div class="page-shell pos-background">
 <header class="topbar">
 <div class="brand-header">
 <img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="brand-header-logo" />
@@ -253,11 +254,10 @@ fetchDashboard()
 </div>
 </div>
 
-<div class="topbar-actions">
-<RouterLink to="/admin/menu" class="btn btn-secondary">จัดการเมนู</RouterLink>
-<RouterLink to="/expenses" class="btn btn-secondary">เพิ่มรายจ่าย</RouterLink>
-<button class="btn btn-secondary" @click="handleLogout">Log out</button>
-</div>
+<AppTopActions
+page="dashboard"
+:role="user?.role || ''"
+/>
 </header>
 
 <section class="card dashboard-chart-card">
