@@ -664,6 +664,16 @@ placeholder="ไม่บังคับกรอก"
 />
 </div>
 
+<div class="field field-full" style="grid-column: span 2; margin-top: 10px;">
+  <label style="display: block; margin-bottom: 5px; font-weight: bold;">หมายเหตุ (เช่น ไม่เผ็ด / แยกน้ำจิ้ม)</label>
+  <textarea 
+    v-model="billInfo.note" 
+    placeholder="พิมพ์หมายเหตุที่นี่..."
+    rows="2"
+    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"
+  ></textarea>
+</div>
+
 </div>
 
 
