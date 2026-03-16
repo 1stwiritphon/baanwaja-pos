@@ -3,96 +3,102 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import {
-showSuccess,
 showError,
 showWarning,
-showConfirm,
-showDeleteConfirm
-} from "../lib/alertService"
+showSuccess,
+} from '../lib/alertService'
 
 const router = useRouter()
 
-const username = ref('')
-const password = ref('')
+const form = ref({
+username: '',
+password: '',
+})
+
 const loading = ref(false)
 
 async function handleLogin() {
-  if (!username.value || !password.value) {
-    showWarning('กรอก username และ password')
-    return
-  }
+const username = form.value.username.trim()
+const password = form.value.password.trim()
 
-  loading.value = true
+if (!username || !password) {
+showWarning('กรอกชื่อผู้ใช้และรหัสผ่านให้ครบ')
+return
+}
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('username', username.value)
-    .eq('password', password.value)
-    .eq('active', true)
-    .single()
+loading.value = true
 
-  if (error || !data) {
-    console.error(error)
-    showError('username หรือ password ไม่ถูกต้อง')
-    loading.value = false
-    return
-  }
+const { data, error } = await supabase
+.from('users')
+.select('*')
+.eq('username', username)
+.eq('password', password)
+.single()
 
-  localStorage.setItem('user', JSON.stringify(data))
+loading.value = false
 
-  if (data.role === 'admin') {
-    router.push('/admin/dashboard')
-  } else {
-    router.push('/pos')
-  }
+if (error || !data) {
+showError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')
+return
+}
 
-  loading.value = false
+localStorage.setItem(
+'user',
+JSON.stringify({
+id: data.id,
+username: data.username,
+role: data.role,
+})
+)
+
+
+
+if (data.role === 'admin') {
+router.push('/admin/dashboard')
+} else {
+router.push('/pos')
+}
 }
 </script>
 
 <template>
-  <div class="auth-page pos-background">
-    <div class="auth-card">
-      <div class="auth-brand">
-        <img
-          src="/logo-baanwaja.jpeg"
-          alt="บ้านวาจา"
-          class="auth-logo"
-        />
-        <div class="auth-brand-text">
-          <h1 class="auth-title">เข้าสู่ระบบ</h1>
-          <p class="auth-subtitle">
-            ระบบจัดการร้านอาหารบ้านวาจา
-          </p>
-        </div>
-      </div>
+<div class="auth-page pos-background">
+<div class="auth-card">
+<div class="auth-brand">
+<img src="/logo-baanwaja.jpeg" alt="บ้านวาจา" class="auth-logo" />
+<div>
+<h1 class="auth-title">เข้าสู่ระบบร้านบ้านวาจา</h1>
+<p class="auth-subtitle">กรุณาเข้าสู่ระบบเพื่อใช้งานระบบร้านอาหาร</p>
+</div>
+</div>
 
-      <div class="form-grid">
-        <div class="field">
-          <label>Username</label>
-          <input
-            v-model="username"
-            type="text"
-            placeholder="username"
-          />
-        </div>
+<div class="form-grid">
+<div class="field">
+<label>ชื่อผู้ใช้</label>
+<input
+v-model="form.username"
+type="text"
+placeholder="กรอกชื่อผู้ใช้"
+@keyup.enter="handleLogin"
+/>
+</div>
 
-        <div class="field">
-          <label>Password</label>
-          <input
-            v-model="password"
-            type="password"
-            placeholder="password"
-          />
-        </div>
-      </div>
+<div class="field">
+<label>รหัสผ่าน</label>
+<input
+v-model="form.password"
+type="password"
+placeholder="กรอกรหัสผ่าน"
+@keyup.enter="handleLogin"
+/>
+</div>
+</div>
 
-      <div class="form-actions">
-        <button class="btn btn-primary full-width" @click="handleLogin" :disabled="loading">
-          {{ loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ' }}
-        </button>
-      </div>
-    </div>
-  </div>
+<div class="form-actions" style="margin-top: 20px;">
+<button class="btn btn-primary full-width" @click="handleLogin" :disabled="loading">
+{{ loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ' }}
+</button>
+</div>
+</div>
+</div>
 </template>

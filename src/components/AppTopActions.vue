@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import {showConfirm,showSuccess} from "../lib/alertService"
 
 const props = defineProps({
 page: {
@@ -15,9 +16,22 @@ default: '',
 
 const router = useRouter()
 
-function logout() {
-localStorage.removeItem('user')
-router.push('/login')
+async function logout() {
+
+const ok = await showConfirm(
+"ต้องการออกจากระบบใช่หรือไม่",
+"ยืนยันการออกจากระบบ"
+)
+
+if (!ok) return
+
+localStorage.removeItem("user")
+
+showSuccess("ออกจากระบบเรียบร้อย")
+
+setTimeout(() => {
+router.push("/login")
+}, 500)
 }
 
 const showPos = computed(() => {
