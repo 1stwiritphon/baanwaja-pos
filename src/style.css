@@ -268,6 +268,7 @@ img {
   background: #e8f2dc;
 }
 
+
 .btn-danger {
   background: var(--accent-soft);
   color: var(--accent);
@@ -1156,4 +1157,450 @@ font-weight: 700;
 font-size: 30px;
 font-weight: 900;
 margin-top: 6px;
+}
+.admin-menu-form-card {
+  background: linear-gradient(135deg, #dfe9dc 0%, #dfe9dc 100%);
+  border: none;
+}
+
+.admin-menu-list-card {
+  background: linear-gradient(135deg, #dfe9dc 0%, #dfe9dc 100%);
+  border: none;
+}
+
+.admin-menu-striped-item {
+  border-radius: 18px;
+  border: 1px solid #dfe9dc;
+  transition: background 0.2s ease;
+}
+
+.admin-menu-striped-item.is-alt {
+  background: #eef7ec;
+}
+
+.admin-menu-striped-item:not(.is-alt) {
+  background: #ffffff;
+}
+.admin-menu-form-card {
+  background: #9d4750;
+  border: none;
+  height: fit-content;
+  color: white;
+}
+.admin-grid {
+  align-items: start;
+}
+.admin-menu-form-card label,
+.admin-menu-form-card h2,
+.admin-menu-form-card p {
+  color: white;
+}
+.admin-menu-form-card input,
+.admin-menu-form-card select {
+  background: white;
+  border: none;
+}
+.admin-menu-form-card .btn-primary {
+  background: #f6d7b0;
+  color: #6a2d33;
+  border: none;
+  font-weight: 700;
+}
+
+.admin-menu-form-card .btn-primary:hover {
+  background: #efc996;
+}
+.subsection-title {
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(50, 44, 39, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fffdf9;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 22px;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 24px;
+  color: var(--accent);
+}
+
+.modal-subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.option-btn {
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+.option-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.modal-summary {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #faf6f0;
+  border: 1px solid var(--line);
+}
+
+.summary-preview {
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.summary-price {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.admin-menu-form-card {
+  background: #9d4750;
+  border: none;
+  height: fit-content;
+  color: white;
+}
+
+.admin-menu-form-card label,
+.admin-menu-form-card h2,
+.admin-menu-form-card p {
+  color: white;
+}
+
+.admin-menu-form-card input,
+.admin-menu-form-card select,
+.admin-menu-form-card textarea {
+  background: white;
+  border: none;
+}
+
+.admin-menu-form-card .btn-primary {
+  background: #f6d7b0;
+  color: #6a2d33;
+  border: none;
+  font-weight: 700;
+}
+
+.admin-menu-form-card .btn-primary:hover {
+  background: #efc996;
+}
+
+.admin-menu-list-card {
+  background: linear-gradient(135deg, #fff4c9 0%, #ffe07a 100%);
+  border: none;
+}
+
+.admin-menu-striped-item {
+  border-radius: 18px;
+  border: 1px solid #dfe9dc;
+}
+
+.admin-menu-striped-item.is-alt {
+  background: #eef7ec;
+}
+
+.admin-menu-striped-item:not(.is-alt) {
+  background: #ffffff;
+}
+
+.admin-grid {
+  align-items: start;
+}
+/* =========================
+POS MENU CARD - เขียว
+========================= */
+.menu-card {
+background: #dfeee3;
+border: 1px solid #c9dfcf;
+color: #23412b;
+border-radius: 18px;
+padding: 14px;
+transition: all 0.2s ease;
+}
+
+.menu-card:hover {
+background: #d4e8d9;
+border-color: #b8d1c0;
+transform: translateY(-1px);
+}
+
+.menu-card-name {
+color: #23412b;
+font-weight: 800;
+font-size: 16px;
+line-height: 1.35;
+}
+
+.menu-card-price {
+color: #35573f;
+font-weight: 700;
+margin-top: 6px;
+}
+
+.menu-card .pill {
+background: #b8d8bf;
+color: #23412b;
+border: none;
+border-radius: 999px;
+padding: 6px 10px;
+font-size: 12px;
+font-weight: 700;
+display: inline-block;
+margin-bottom: 10px;
+}
+
+/* =========================
+CURRENT BILL CARD - แดง
+========================= */
+.sticky-card {
+background: #9d4750;
+border: none;
+color: #fff;
+}
+
+.sticky-card .card-head h2,
+.sticky-card .card-head p,
+.sticky-card label,
+.sticky-card .summary-line,
+.sticky-card .cart-name,
+.sticky-card .cart-sub,
+.sticky-card .cart-total,
+.sticky-card .qty-text,
+.sticky-card strong,
+.sticky-card span {
+color: #fff;
+}
+
+.sticky-card input,
+.sticky-card select,
+.sticky-card textarea {
+background: #fff;
+color: #3f1d22;
+border: none;
+}
+
+.sticky-card input::placeholder,
+.sticky-card textarea::placeholder {
+color: #8f6b70;
+}
+
+.sticky-card .empty-box {
+background: rgba(255, 255, 255, 0.10);
+color: #fff;
+border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sticky-card .cart-item {
+background: rgba(255, 255, 255, 0.10);
+border: 1px solid rgba(255, 255, 255, 0.12);
+border-radius: 16px;
+}
+
+.sticky-card .qty-btn {
+background: #f6d7b0;
+color: #6a2d33;
+border: none;
+}
+
+.sticky-card .qty-btn:hover {
+background: #efc996;
+}
+
+.sticky-card .text-danger {
+color: #ffe2e2;
+}
+
+.sticky-card .btn-primary {
+background: #f6d7b0;
+color: #6a2d33;
+border: none;
+font-weight: 800;
+}
+
+.sticky-card .btn-primary:hover {
+background: #efc996;
+}
+
+.sticky-card .btn-primary:disabled {
+opacity: 0.7;
+}
+
+.sticky-card .summary-line {
+border-top: 1px solid rgba(255, 255, 255, 0.15);
+padding-top: 12px;
+}
+
+/* =========================
+OPTION MODAL BUTTONS - แดง
+========================= */
+.option-btn {
+min-height: 48px;
+border-radius: 14px;
+background: #9d4750;
+color: #fff;
+border: none;
+font-weight: 700;
+padding: 10px 12px;
+transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.option-btn:hover {
+background: #8b3f47;
+transform: translateY(-1px);
+}
+
+.option-btn.active {
+background: #6f2e35;
+color: #fff;
+border: none;
+}
+
+/* =========================
+MODAL THEME
+========================= */
+.modal-card {
+width: min(720px, 100%);
+max-height: 90vh;
+overflow-y: auto;
+background: #fff8f8;
+border: 1px solid #ead6d8;
+border-radius: 28px;
+padding: 22px;
+}
+
+.modal-title {
+margin: 0;
+font-size: 24px;
+color: #9d4750;
+}
+
+.modal-subtitle {
+margin: 6px 0 0;
+color: #7a4a50;
+}
+
+.modal-summary {
+margin-top: 18px;
+padding: 16px;
+border-radius: 18px;
+background: #f8e8ea;
+border: 1px solid #ead6d8;
+}
+
+.summary-preview {
+font-weight: 800;
+color: #9d4750;
+margin-bottom: 6px;
+}
+
+.summary-price {
+font-size: 22px;
+font-weight: 800;
+color: #6f2e35;
+}
+
+.modal-close {
+width: 40px;
+height: 40px;
+border-radius: 14px;
+background: #f6d7b0;
+color: #6a2d33;
+font-size: 18px;
+font-weight: 800;
+border: none;
+}
+
+/* =========================
+SHARED PILL
+========================= */
+.pill {
+border-radius: 999px;
+padding: 6px 10px;
+font-size: 12px;
+font-weight: 700;
+}
+
+/* =========================
+OPTIONAL: menu section title
+========================= */
+.subsection-title {
+margin-bottom: 12px;
+font-size: 16px;
+font-weight: 800;
+color: var(--accent);
+}
+
+/* =========================
+OPTIONAL: better spacing mobile
+========================= */
+@media (max-width: 768px) {
+.menu-card {
+padding: 12px;
+}
+
+.menu-card-name {
+font-size: 15px;
+}
+
+.modal-card {
+border-radius: 22px;
+padding: 18px;
+}
+
+.summary-price {
+font-size: 20px;
+}
 }

@@ -2,22 +2,30 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { fetchCurrentMenus, fetchMenuOptions } from '../lib/menuDataService'
+import MenuOptionModal from '../components/MenuOptionModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
-
 const billId = route.params.id
 
 const loading = ref(false)
 const saving = ref(false)
-const menuLoading = ref(false)
 
 const bill = ref(null)
 const cart = ref([])
-const menu = ref([])
+
+const menuList = ref([])
+const proteins = ref([])
+const noodles = ref([])
+const extras = ref([])
+
 const searchText = ref('')
 const selectedCategory = ref('ทั้งหมด')
+
+const selectedMenu = ref(null)
+const optionModalOpen = ref(false)
 
 const customItemForm = ref({
   name: '',
@@ -25,51 +33,52 @@ const customItemForm = ref({
 })
 
 const categories = computed(() => {
-  const unique = [...new Set(menu.value.map(item => item.category))]
+  const unique = [...new Set(menuList.value.map((item) => item.category))]
   return ['ทั้งหมด', ...unique]
 })
 
 const filteredMenu = computed(() => {
-  let items = menu.value
+  let items = [...menuList.value]
 
   if (selectedCategory.value !== 'ทั้งหมด') {
-    items = items.filter(item => item.category === selectedCategory.value)
+    items = items.filter((item) => item.category === selectedCategory.value)
   }
 
   if (searchText.value.trim()) {
     const keyword = searchText.value.trim().toLowerCase()
-    items = items.filter(item => item.name.toLowerCase().includes(keyword))
+    items = items.filter((item) => item.name.toLowerCase().includes(keyword))
   }
 
   return items
 })
 
-const totalItems = computed(() =>
-  cart.value.reduce((sum, item) => sum + item.qty, 0)
-)
+const menuByCategory = computed(() => {
+  const grouped = {}
+  filteredMenu.value.forEach((item) => {
+    if (!grouped[item.category]) grouped[item.category] = []
+    grouped[item.category].push(item)
+  })
+  return grouped
+})
 
-const totalPrice = computed(() =>
-  cart.value.reduce((sum, item) => sum + Number(item.price) * item.qty, 0)
-)
+const totalItems = computed(() => cart.value.reduce((sum, item) => sum + item.qty, 0))
+const totalPrice = computed(() => cart.value.reduce((sum, item) => sum + Number(item.price) * item.qty, 0))
 
-async function fetchMenu() {
-  menuLoading.value = true
+async function loadMenuData() {
+  try {
+    const [menus, options] = await Promise.all([
+      fetchCurrentMenus(true),
+      fetchMenuOptions(),
+    ])
 
-  const { data, error } = await supabase
-    .from('menu')
-    .select('*')
-    .eq('active', true)
-    .order('category', { ascending: true })
-    .order('name', { ascending: true })
-
-  if (error) {
-    console.error(JSON.stringify(error, null, 2))
+    menuList.value = menus
+    proteins.value = options.proteins
+    noodles.value = options.noodles
+    extras.value = options.extras
+  } catch (error) {
+    console.error(error)
     alert('โหลดเมนูไม่สำเร็จ')
-  } else {
-    menu.value = data || []
   }
-
-  menuLoading.value = false
 }
 
 async function fetchBill() {
@@ -82,7 +91,6 @@ async function fetchBill() {
     .single()
 
   if (billError || !billData) {
-    console.error(JSON.stringify(billError, null, 2))
     alert('โหลดบิลไม่สำเร็จ')
     loading.value = false
     return
@@ -94,28 +102,24 @@ async function fetchBill() {
     return
   }
 
-  bill.value = {
-    ...billData,
-  }
+  bill.value = billData
 
-  const { data: itemData, error: itemError } = await supabase
+  const { data: itemsData, error: itemsError } = await supabase
     .from('sale_items')
     .select('*')
     .eq('sale_id', billId)
     .order('created_at', { ascending: true })
 
-  if (itemError) {
-    console.error(JSON.stringify(itemError, null, 2))
+  if (itemsError) {
     alert('โหลดรายการในบิลไม่สำเร็จ')
     loading.value = false
     return
   }
 
-  cart.value = (itemData || []).map(item => ({
-    id: item.menu_id || `custom-${item.id}`,
-    type: item.menu_id ? 'menu' : 'custom',
+  cart.value = (itemsData || []).map((item) => ({
+    id: item.id,
     menu_id: item.menu_id,
-    name: item.item_name || 'เมนู',
+    name: item.item_name || item.name,
     price: Number(item.price),
     qty: item.quantity,
   }))
@@ -123,21 +127,38 @@ async function fetchBill() {
   loading.value = false
 }
 
-function addToCart(item) {
-  const found = cart.value.find(i => i.type === 'menu' && i.menu_id === item.id)
+function openMenuItem(item) {
+  if (item.source_type === 'configurable') {
+    selectedMenu.value = item
+    optionModalOpen.value = true
+    return
+  }
+
+  addDirectItem(item.name, Number(item.price), item.id)
+}
+
+function addDirectItem(name, price, menuId = null) {
+  const found = cart.value.find(
+    (i) => i.name === name && Number(i.price) === Number(price) && i.menu_id === menuId
+  )
 
   if (found) {
     found.qty += 1
   } else {
     cart.value.push({
-      id: `menu-${item.id}-${Date.now()}`,
-      type: 'menu',
-      menu_id: item.id,
-      name: item.name,
-      price: Number(item.price),
+      id: `new-${Date.now()}-${Math.random()}`,
+      menu_id: menuId,
+      name,
+      price: Number(price),
       qty: 1,
     })
   }
+}
+
+function addConfiguredMenu(payload) {
+  addDirectItem(payload.name, payload.price, null)
+  optionModalOpen.value = false
+  selectedMenu.value = null
 }
 
 function addCustomItem() {
@@ -149,36 +170,24 @@ function addCustomItem() {
     return
   }
 
-  cart.value.push({
-    id: `custom-${Date.now()}`,
-    type: 'custom',
-    menu_id: null,
-    name,
-    price,
-    qty: 1,
-  })
-
-  customItemForm.value = {
-    name: '',
-    price: '',
-  }
+  addDirectItem(name, price, null)
+  customItemForm.value = { name: '', price: '' }
 }
 
 function increaseQty(id) {
-  const item = cart.value.find(i => i.id === id)
+  const item = cart.value.find((i) => i.id === id)
   if (item) item.qty += 1
 }
 
 function decreaseQty(id) {
-  const item = cart.value.find(i => i.id === id)
+  const item = cart.value.find((i) => i.id === id)
   if (!item) return
-
   if (item.qty > 1) item.qty -= 1
   else removeItem(id)
 }
 
 function removeItem(id) {
-  cart.value = cart.value.filter(i => i.id !== id)
+  cart.value = cart.value.filter((i) => i.id !== id)
 }
 
 async function saveBillChanges() {
@@ -191,7 +200,7 @@ async function saveBillChanges() {
 
   saving.value = true
 
-  const { error: updateBillError } = await supabase
+  const { error: billError } = await supabase
     .from('sales')
     .update({
       total: totalPrice.value,
@@ -201,51 +210,43 @@ async function saveBillChanges() {
     })
     .eq('id', billId)
 
-  if (updateBillError) {
-    console.error(JSON.stringify(updateBillError, null, 2))
+  if (billError) {
     alert('อัปเดตบิลไม่สำเร็จ')
     saving.value = false
     return
   }
 
-  const { error: deleteItemsError } = await supabase
+  const { error: deleteError } = await supabase
     .from('sale_items')
     .delete()
     .eq('sale_id', billId)
 
-  if (deleteItemsError) {
-    console.error(JSON.stringify(deleteItemsError, null, 2))
-    alert('ล้างรายการเดิมไม่สำเร็จ')
+  if (deleteError) {
+    alert('ลบรายการเดิมไม่สำเร็จ')
     saving.value = false
     return
   }
 
-  const itemsPayload = cart.value.map(item => ({
+  const itemsPayload = cart.value.map((item) => ({
     sale_id: billId,
-    menu_id: item.type === 'menu' ? item.menu_id : null,
+    menu_id: item.menu_id || null,
     item_name: item.name,
     quantity: item.qty,
     price: item.price,
   }))
 
-  const { error: insertItemsError } = await supabase
+  const { error: insertError } = await supabase
     .from('sale_items')
     .insert(itemsPayload)
 
-  if (insertItemsError) {
-    console.error(JSON.stringify(insertItemsError, null, 2))
+  if (insertError) {
     alert('บันทึกรายการใหม่ไม่สำเร็จ')
     saving.value = false
     return
   }
 
   alert('แก้ไขบิลสำเร็จ')
-
-  if (user?.role === 'admin') {
-    router.push('/admin/dashboard')
-  } else {
-    router.push('/pos')
-  }
+  router.push(user?.role === 'admin' ? '/admin/dashboard' : '/pos')
 }
 
 function handleLogout() {
@@ -254,7 +255,7 @@ function handleLogout() {
 }
 
 onMounted(async () => {
-  await Promise.all([fetchMenu(), fetchBill()])
+  await Promise.all([loadMenuData(), fetchBill()])
 })
 </script>
 
@@ -266,7 +267,7 @@ onMounted(async () => {
         <div>
           <p class="eyebrow">BAAN WAJA</p>
           <h1 class="page-title">แก้ไขบิล</h1>
-          <p class="page-subtitle">แก้รายการอาหารและข้อมูลบิล</p>
+          <p class="page-subtitle">ใช้เมนูและตัวเลือกจากฐานข้อมูล</p>
         </div>
       </div>
 
@@ -288,46 +289,52 @@ onMounted(async () => {
           <div class="card-head">
             <div>
               <h2>เพิ่มเมนูลงบิล</h2>
-              <p>ค้นหาแล้วกดเพิ่มลงในบิลเดิม</p>
+              <p>ดึงเมนูจากฐานข้อมูล</p>
             </div>
           </div>
 
-          <div class="field" style="margin-bottom: 16px;">
-            <label>ค้นหาเมนู</label>
-            <input v-model="searchText" type="text" placeholder="พิมพ์ชื่อเมนู" />
-          </div>
-
-          <div v-if="menuLoading" class="empty-box">กำลังโหลดเมนู...</div>
-
-          <template v-else>
-            <div class="chip-row">
-              <button
-                v-for="category in categories"
-                :key="category"
-                class="chip"
-                :class="{ 'chip-active': selectedCategory === category }"
-                @click="selectedCategory = category"
-              >
-                {{ category }}
-              </button>
+          <div class="form-grid" style="margin-bottom: 16px;">
+            <div class="field">
+              <label>ค้นหาเมนู</label>
+              <input v-model="searchText" type="text" placeholder="พิมพ์ชื่อเมนู" />
             </div>
 
-            <div class="menu-scroll-area">
-              <div v-if="filteredMenu.length === 0" class="empty-box">ไม่พบเมนู</div>
+            <div class="field">
+              <label>หมวดหมู่</label>
+              <select v-model="selectedCategory">
+                <option v-for="category in categories" :key="category" :value="category">
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+          </div>
 
-              <div v-else class="menu-grid">
-                <button
-                  v-for="item in filteredMenu"
-                  :key="item.id"
-                  class="menu-card"
-                  @click="addToCart(item)"
-                >
-                  <div class="menu-card-name">{{ item.name }}</div>
-                  <div class="menu-card-price">{{ Number(item.price) }} บาท</div>
-                </button>
+          <div class="menu-scroll-area">
+            <div v-if="filteredMenu.length === 0" class="empty-box">ไม่พบเมนู</div>
+
+            <div v-else>
+              <div v-for="(menus, category) in menuByCategory" :key="category" style="margin-bottom: 18px;">
+                <div class="subsection-title">{{ category }}</div>
+
+                <div class="menu-grid">
+                  <button
+                    v-for="item in menus"
+                    :key="item.id"
+                    class="menu-card"
+                    @click="openMenuItem(item)"
+                  >
+                    <div class="pill">
+                      {{ item.source_type === 'configurable' ? 'เลือกตัวเลือก' : 'กดได้เลย' }}
+                    </div>
+                    <div class="menu-card-name">{{ item.name }}</div>
+                    <div class="menu-card-price">
+                      {{ item.source_type === 'configurable' ? `เริ่ม ${Number(item.base_price)} บาท` : `${Number(item.price)} บาท` }}
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
-          </template>
+          </div>
         </div>
 
         <div class="card" style="padding: 18px;">
@@ -410,5 +417,15 @@ onMounted(async () => {
         </div>
       </div>
     </section>
+
+    <MenuOptionModal
+      :open="optionModalOpen"
+      :menu="selectedMenu"
+      :proteins="proteins"
+      :noodles="noodles"
+      :extras="extras"
+      @close="optionModalOpen = false"
+      @add="addConfiguredMenu"
+    />
   </div>
 </template>
