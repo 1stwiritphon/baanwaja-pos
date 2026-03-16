@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
 import WeeklySalesChart from '../components/WeeklySalesChart.vue'
@@ -10,11 +10,12 @@ showSuccess,
 showError,
 showWarning,
 showConfirm,
-showDeleteConfirm
-} from "../lib/alertService"
+showDeleteConfirm,
+} from '../lib/alertService'
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
+
 const summary = ref({
 income: 0,
 expenses: 0,
@@ -35,6 +36,15 @@ const weeklyChartValues = ref([])
 const currentPage = ref(1)
 const perPage = 5
 
+const expenseForm = ref({
+id: null,
+title: '',
+amount: '',
+category: '',
+note: '',
+})
+const savingExpense = ref(false)
+
 const totalPages = computed(() => Math.ceil(bills.value.length / perPage))
 
 const paginatedBills = computed(() => {
@@ -42,6 +52,8 @@ const start = (currentPage.value - 1) * perPage
 const end = start + perPage
 return bills.value.slice(start, end)
 })
+
+const isEditingExpense = computed(() => !!expenseForm.value.id)
 
 function formatThaiDate(dateString) {
 if (!dateString) return '-'
@@ -79,6 +91,98 @@ weekday: 'short',
 day: 'numeric',
 month: 'short',
 })
+}
+
+function resetExpenseForm() {
+expenseForm.value = {
+id: null,
+title: '',
+amount: '',
+category: '',
+note: '',
+}
+}
+
+function startEditExpense(expense) {
+expenseForm.value = {
+id: expense.id,
+title: expense.title || '',
+amount: Number(expense.amount || 0),
+category: expense.category || '',
+note: expense.note || '',
+}
+
+window.scrollTo({
+top: document.body.scrollHeight,
+behavior: 'smooth',
+})
+}
+
+async function saveExpenseEdit() {
+const title = expenseForm.value.title.trim()
+const amount = Number(expenseForm.value.amount)
+const category = expenseForm.value.category.trim()
+const note = expenseForm.value.note.trim()
+
+if (!expenseForm.value.id) {
+showWarning('ไม่พบรายการรายจ่ายที่ต้องการแก้ไข')
+return
+}
+
+if (!title || !amount || amount <= 0 || !category) {
+showWarning('กรอกชื่อรายการ จำนวนเงิน และหมวดหมู่ให้ถูกต้อง')
+return
+}
+
+const ok = await showConfirm('ต้องการบันทึกการแก้ไขรายจ่ายนี้หรือไม่', 'ยืนยันการแก้ไขรายจ่าย')
+if (!ok) return
+
+savingExpense.value = true
+
+const { error } = await supabase
+.from('expenses')
+.update({
+title,
+amount,
+category,
+note: note || null,
+})
+.eq('id', expenseForm.value.id)
+
+savingExpense.value = false
+
+if (error) {
+console.error(JSON.stringify(error, null, 2))
+showError(error?.message || 'แก้ไขรายจ่ายไม่สำเร็จ')
+return
+}
+
+resetExpenseForm()
+await fetchDashboard()
+showSuccess('แก้ไขรายจ่ายเรียบร้อย')
+}
+
+async function deleteExpense(expenseId) {
+const ok = await showDeleteConfirm('ต้องการลบรายจ่ายนี้หรือไม่')
+if (!ok) return
+
+const { error } = await supabase
+.from('expenses')
+.delete()
+.eq('id', expenseId)
+
+if (error) {
+console.error(JSON.stringify(error, null, 2))
+showError(error?.message || 'ลบรายจ่ายไม่สำเร็จ')
+return
+}
+
+if (expenseForm.value.id === expenseId) {
+resetExpenseForm()
+}
+
+await fetchDashboard()
+showSuccess('ลบรายจ่ายเรียบร้อย')
 }
 
 async function fetchWeeklySalesChart() {
@@ -196,8 +300,7 @@ selectedBillItems.value = data || []
 }
 
 async function cancelBill(billId) {
-const user = JSON.parse(localStorage.getItem('user') || 'null')
-const ok = showDeleteConfirm('ต้องการยกเลิกบิลนี้หรือไม่')
+const ok = await showDeleteConfirm('ต้องการยกเลิกบิลนี้หรือไม่')
 if (!ok) return
 
 const { error } = await supabase
@@ -235,11 +338,6 @@ function goToday() {
 selectedDate.value = getBusinessDate()
 }
 
-function handleLogout() {
-localStorage.removeItem('user')
-router.push('/login')
-}
-
 watch(selectedDate, () => {
 fetchDashboard()
 })
@@ -261,10 +359,7 @@ fetchDashboard()
 </div>
 </div>
 
-<AppTopActions
-page="dashboard"
-:role="user?.role || ''"
-/>
+<AppTopActions page="dashboard" :role="user?.role || ''" />
 </header>
 
 <section class="card dashboard-chart-card">
@@ -275,10 +370,7 @@ page="dashboard"
 </div>
 </div>
 
-<WeeklySalesChart
-:labels="weeklyChartLabels"
-:values="weeklyChartValues"
-/>
+<WeeklySalesChart :labels="weeklyChartLabels" :values="weeklyChartValues" />
 </section>
 
 <div class="card dashboard-filter-card" style="margin-top: 20px;">
@@ -300,67 +392,45 @@ page="dashboard"
 </div>
 
 <section class="stats-grid dashboard-stats">
-
-<!-- รายรับ -->
-
 <div class="stat-card stat-income">
-
 <div class="stat-icon">
 <svg viewBox="0 0 24 24">
 <path d="M3 17l6-6 4 4 7-7"/>
 </svg>
 </div>
-
 <span class="stat-label">รายรับของวัน</span>
 <strong class="stat-value">{{ summary.income }}</strong>
-
 </div>
 
-<!-- รายจ่าย -->
-
 <div class="stat-card stat-expense">
-
 <div class="stat-icon">
 <svg viewBox="0 0 24 24">
 <path d="M3 7l6 6 4-4 7 7"/>
 </svg>
 </div>
-
 <span class="stat-label">รายจ่ายของวัน</span>
 <strong class="stat-value">{{ summary.expenses }}</strong>
-
 </div>
 
-<!-- กำไร -->
-
 <div class="stat-card stat-profit">
-
 <div class="stat-icon">
 <svg viewBox="0 0 24 24">
 <circle cx="12" cy="12" r="8"/>
 </svg>
 </div>
-
 <span class="stat-label">กำไรของวัน</span>
 <strong class="stat-value">{{ summary.profit }}</strong>
-
 </div>
 
-<!-- จำนวนบิล -->
-
 <div class="stat-card stat-bills">
-
 <div class="stat-icon">
 <svg viewBox="0 0 24 24">
 <rect x="4" y="5" width="16" height="14"/>
 </svg>
 </div>
-
 <span class="stat-label">จำนวนบิล</span>
 <strong class="stat-value">{{ summary.bills }}</strong>
-
 </div>
-
 </section>
 
 <section class="admin-grid dashboard-grid" style="margin-top: 20px;">
@@ -487,7 +557,65 @@ class="btn btn-small"
 <span>{{ expense.created_by || '-' }}</span>
 </div>
 </div>
+
+<div class="menu-admin-actions">
+<button class="btn btn-small btn-secondary" @click="startEditExpense(expense)">
+แก้ไข
+</button>
+<button class="btn btn-small btn-danger" @click="deleteExpense(expense.id)">
+ลบ
+</button>
 </div>
+</div>
+</div>
+</section>
+
+<section v-if="isEditingExpense" class="card dashboard-expense-card" style="margin-top: 20px;">
+<div class="card-head">
+<div>
+<h2>แก้ไขรายจ่าย</h2>
+<p>แก้ไขรายการรายจ่ายที่เลือกจากด้านบน</p>
+</div>
+</div>
+
+<div class="expense-form-grid">
+<div class="field">
+<label>ชื่อรายการ</label>
+<input v-model="expenseForm.title" type="text" placeholder="เช่น ค่าน้ำแข็ง" />
+</div>
+
+<div class="field">
+<label>จำนวนเงิน</label>
+<input v-model="expenseForm.amount" type="number" placeholder="เช่น 250" />
+</div>
+
+<div class="field">
+<label>หมวดหมู่</label>
+<select v-model="expenseForm.category">
+<option value="">เลือกหมวดหมู่</option>
+<option value="วัตถุดิบ">วัตถุดิบ</option>
+<option value="เครื่องดื่ม">เครื่องดื่ม</option>
+<option value="ของใช้ในร้าน">ของใช้ในร้าน</option>
+<option value="ค่าเดินทาง">ค่าเดินทาง</option>
+<option value="ค่าแรง">ค่าแรง</option>
+<option value="อื่นๆ">อื่นๆ</option>
+</select>
+</div>
+
+<div class="field field-full">
+<label>หมายเหตุ</label>
+<textarea v-model="expenseForm.note" rows="4" placeholder="รายละเอียดเพิ่มเติม" />
+</div>
+</div>
+
+<div class="form-actions expense-actions">
+<button class="expense-save-btn" @click="saveExpenseEdit" :disabled="savingExpense">
+{{ savingExpense ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข' }}
+</button>
+
+<button class="btn btn-secondary" type="button" @click="resetExpenseForm">
+ยกเลิกการแก้ไข
+</button>
 </div>
 </section>
 </div>
