@@ -5,6 +5,13 @@ import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
 import WeeklySalesChart from '../components/WeeklySalesChart.vue'
 import AppTopActions from '../components/AppTopActions.vue'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -145,12 +152,12 @@ const { data: expensesData, error: expensesError } = await supabase
 
 if (allSalesError) {
 console.error(JSON.stringify(allSalesError, null, 2))
-alert(allSalesError?.message || 'โหลดรายการบิลไม่สำเร็จ')
+showError(allSalesError?.message || 'โหลดรายการบิลไม่สำเร็จ')
 }
 
 if (expensesError) {
 console.error(JSON.stringify(expensesError, null, 2))
-alert(expensesError?.message || 'โหลดข้อมูลรายจ่ายไม่สำเร็จ')
+showError(expensesError?.message || 'โหลดข้อมูลรายจ่ายไม่สำเร็จ')
 }
 
 const income = (allSalesData || []).reduce((sum, item) => sum + Number(item.total), 0)
@@ -181,7 +188,7 @@ const { data, error } = await supabase
 
 if (error) {
 console.error(JSON.stringify(error, null, 2))
-alert(error?.message || 'โหลดรายละเอียดบิลไม่สำเร็จ')
+showError(error?.message || 'โหลดรายละเอียดบิลไม่สำเร็จ')
 return
 }
 
@@ -190,7 +197,7 @@ selectedBillItems.value = data || []
 
 async function cancelBill(billId) {
 const user = JSON.parse(localStorage.getItem('user') || 'null')
-const ok = confirm('ต้องการยกเลิกบิลนี้หรือไม่')
+const ok = showDeleteConfirm('ต้องการยกเลิกบิลนี้หรือไม่')
 if (!ok) return
 
 const { error } = await supabase
@@ -204,11 +211,11 @@ cancelled_at: new Date().toISOString(),
 
 if (error) {
 console.error(JSON.stringify(error, null, 2))
-alert(error?.message || 'ยกเลิกบิลไม่สำเร็จ')
+showError(error?.message || 'ยกเลิกบิลไม่สำเร็จ')
 return
 }
 
-alert('ยกเลิกบิลเรียบร้อย')
+showSuccess('ยกเลิกบิลเรียบร้อย')
 fetchDashboard()
 }
 

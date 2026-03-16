@@ -3,6 +3,13 @@ import { computed, onMounted, ref } from 'vue'
 import { supabase } from '../lib/supabase'
 import { fetchCurrentMenus } from '../lib/menuDataService'
 import AppTopActions from '../components/AppTopActions.vue'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const loading = ref(false)
 const saving = ref(false)
@@ -64,7 +71,7 @@ try {
 menuList.value = await fetchCurrentMenus(false)
 } catch (error) {
 console.error(error)
-alert('โหลดเมนูไม่สำเร็จ')
+showError('โหลดเมนูไม่สำเร็จ')
 } finally {
 loading.value = false
 }
@@ -112,7 +119,7 @@ const price = Number(form.value.price)
 const basePrice = Number(form.value.base_price || form.value.price)
 
 if (!name || !price || price <= 0 || !form.value.category) {
-alert('กรอกชื่อเมนู ราคา และหมวดหมู่ให้ถูกต้อง')
+showWarning('กรอกชื่อเมนู ราคา และหมวดหมู่ให้ถูกต้อง')
 return
 }
 
@@ -145,24 +152,24 @@ const { error } = await supabase
 .eq('id', form.value.id)
 
 if (error) {
-alert(error.message || 'แก้ไขเมนูไม่สำเร็จ')
+showError(error.message || 'แก้ไขเมนูไม่สำเร็จ')
 saving.value = false
 return
 }
 
-alert('แก้ไขเมนูสำเร็จ')
+showSuccess('แก้ไขเมนูสำเร็จ')
 } else {
 const { error } = await supabase
 .from('menu')
 .insert(payload)
 
 if (error) {
-alert(error.message || 'เพิ่มเมนูไม่สำเร็จ')
+showError(error.message || 'เพิ่มเมนูไม่สำเร็จ')
 saving.value = false
 return
 }
 
-alert('เพิ่มเมนูสำเร็จ')
+showSuccess('เพิ่มเมนูสำเร็จ')
 }
 
 resetForm()
@@ -177,30 +184,35 @@ const { error } = await supabase
 .eq('id', item.id)
 
 if (error) {
-alert('เปลี่ยนสถานะเมนูไม่สำเร็จ')
+showError('เปลี่ยนสถานะเมนูไม่สำเร็จ')
 return
 }
 
 fetchMenu()
 }
 
+
 async function deleteMenu(id) {
-const ok = confirm('ต้องการลบเมนูนี้หรือไม่')
+const ok = await showDeleteConfirm('ต้องการลบเมนูนี้หรือไม่')
 if (!ok) return
 
 const { error } = await supabase
 .from('menu')
-.delete()
+.update({
+active: false,
+is_current: false,
+})
 .eq('id', id)
 
 if (error) {
-alert(error.message || 'ลบเมนูไม่สำเร็จ')
+showError(error.message || 'ลบเมนูไม่สำเร็จ')
 return
 }
 
-alert('ลบเมนูเรียบร้อย')
+showSuccess('ลบเมนูเรียบร้อย')
 fetchMenu()
 }
+
 
 onMounted(fetchMenu)
 </script>

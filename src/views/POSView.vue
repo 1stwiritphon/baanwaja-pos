@@ -6,6 +6,13 @@ import { getBusinessDate } from '../lib/businessDate'
 import { fetchCurrentMenus, fetchMenuOptions } from '../lib/menuDataService'
 import MenuOptionModal from '../components/MenuOptionModal.vue'
 import AppTopActions from '../components/AppTopActions.vue'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -119,7 +126,7 @@ async function loadMenuData() {
     extras.value = options.extras
   } catch (error) {
     console.error(error)
-    alert('โหลดเมนูไม่สำเร็จ')
+    showError('โหลดเมนูไม่สำเร็จ')
   } finally {
     loading.value = false
   }
@@ -182,7 +189,7 @@ function addCustomItem() {
   const price = Number(customItemForm.value.price)
 
   if (!name || !price || price <= 0) {
-    alert('กรอกชื่อและราคาเมนูพิเศษให้ถูกต้อง')
+    showWarning('กรอกชื่อและราคาเมนูพิเศษให้ถูกต้อง')
     return
   }
 
@@ -207,60 +214,67 @@ function removeItem(id) {
 }
 
 async function saveSale() {
-  if (!cart.value.length) {
-    alert('กรุณาเลือกเมนูก่อน')
-    return
-  }
-
-  saving.value = true
-
-  const { data: saleData, error: saleError } = await supabase
-    .from('sales')
-    .insert({
-      total: totalPrice.value,
-      village: billInfo.value.village || null,
-      house_no: billInfo.value.house_no || null,
-      soi: billInfo.value.soi || null,
-      business_date: getBusinessDate(),
-      status: 'completed',
-    })
-    .select()
-    .single()
-
-  if (saleError) {
-    alert(`บันทึกยอดขายไม่สำเร็จ: ${saleError.message}`)
-    saving.value = false
-    return
-  }
-
-  const itemsPayload = cart.value.map((item) => ({
-    sale_id: saleData.id,
-    menu_id: item.menu_id || null,
-    item_name: item.name,
-    quantity: item.qty,
-    price: item.price,
-  }))
-
-  const { error: itemsError } = await supabase
-    .from('sale_items')
-    .insert(itemsPayload)
-
-  if (itemsError) {
-    alert(`บันทึกรายการสินค้าไม่สำเร็จ: ${itemsError.message}`)
-    saving.value = false
-    return
-  }
-
-  alert(`บันทึกบิลสำเร็จ รวม ${totalPrice.value} บาท`)
-  cart.value = []
-  billInfo.value = { village: '', house_no: '', soi: '' }
-  saving.value = false
-  fetchLatestBills()
+if (!cart.value.length) {
+showWarning('กรุณาเลือกเมนูก่อน')
+return
 }
 
+const ok = await showConfirm('ต้องการบันทึกยอดขายนี้หรือไม่', 'ยืนยันการบันทึก')
+if (!ok) return
+
+const finalTotal = totalPrice.value
+
+saving.value = true
+
+const { data: saleData, error: saleError } = await supabase
+.from('sales')
+.insert({
+total: finalTotal,
+village: billInfo.value.village || null,
+house_no: billInfo.value.house_no || null,
+soi: billInfo.value.soi || null,
+business_date: getBusinessDate(),
+status: 'completed',
+})
+.select()
+.single()
+
+if (saleError) {
+showError(`บันทึกยอดขายไม่สำเร็จ: ${saleError.message}`)
+saving.value = false
+return
+}
+
+const itemsPayload = cart.value.map((item) => ({
+sale_id: saleData.id,
+menu_id: item.menu_id || null,
+item_name: item.name,
+quantity: item.qty,
+price: item.price,
+}))
+
+const { error: itemsError } = await supabase
+.from('sale_items')
+.insert(itemsPayload)
+
+if (itemsError) {
+showError(`บันทึกรายการสินค้าไม่สำเร็จ: ${itemsError.message}`)
+saving.value = false
+return
+}
+
+cart.value = []
+billInfo.value = { village: '', house_no: '', soi: '' }
+saving.value = false
+fetchLatestBills()
+
+showSuccess(`บันทึกบิลสำเร็จ รวม ${finalTotal} บาท`)
+}
+
+
 async function cancelBill(billId) {
-  const ok = confirm('ต้องการยกเลิกบิลนี้หรือไม่')
-  if (!ok) return
+const ok = await showDeleteConfirm('ต้องการยกเลิกบิลนี้หรือไม่')
+if (!ok) return
 
   const { error } = await supabase
     .from('sales')
@@ -272,11 +286,11 @@ async function cancelBill(billId) {
     .eq('id', billId)
 
   if (error) {
-    alert('ยกเลิกบิลไม่สำเร็จ')
+    showError('ยกเลิกบิลไม่สำเร็จ')
     return
   }
 
-  alert('ยกเลิกบิลเรียบร้อย')
+  showSuccess('ยกเลิกบิลเรียบร้อย')
   fetchLatestBills()
 }
 

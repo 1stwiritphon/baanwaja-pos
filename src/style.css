@@ -1632,3 +1632,202 @@ line-height: 1.3;
 grid-template-columns: 1fr;
 }
 }
+/* =========================
+SWEETALERT THEME - BAAN WAJA
+========================= */
+
+.bw-alert-popup {
+width: min(460px, calc(100vw - 32px)) !important;
+border-radius: 28px !important;
+padding: 26px 24px 22px !important;
+border: 1px solid #eadfd4 !important;
+box-shadow: 0 24px 60px rgba(73, 56, 42, 0.18) !important;
+background:
+linear-gradient(180deg, rgba(255, 253, 249, 0.98) 0%, rgba(251, 248, 242, 0.98) 100%) !important;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+}
+
+.bw-alert-title {
+margin-top: 8px !important;
+margin-bottom: 8px !important;
+color: #9d4750 !important;
+font-size: 28px !important;
+font-weight: 800 !important;
+line-height: 1.2 !important;
+}
+
+.bw-alert-text {
+color: #6a5b52 !important;
+font-size: 15px !important;
+line-height: 1.65 !important;
+margin-top: 0 !important;
+}
+
+.bw-alert-actions {
+gap: 10px !important;
+margin-top: 22px !important;
+}
+
+.bw-alert-confirm,
+.bw-alert-cancel {
+min-width: 112px;
+height: 44px;
+border-radius: 14px !important;
+padding: 0 18px !important;
+font-size: 14px !important;
+font-weight: 800 !important;
+border: none !important;
+box-shadow: none !important;
+transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.bw-alert-confirm {
+background: linear-gradient(135deg, #9d4750 0%, #852633 100%) !important;
+color: #ffffff !important;
+box-shadow: 0 12px 24px rgba(157, 71, 80, 0.20) !important;
+}
+
+.bw-alert-confirm:hover {
+transform: translateY(-1px);
+box-shadow: 0 16px 26px rgba(157, 71, 80, 0.24) !important;
+}
+
+.bw-alert-cancel {
+background: #eef6ea !important;
+color: #55684e !important;
+border: 1px solid #d9e8d2 !important;
+}
+
+.bw-alert-cancel:hover {
+transform: translateY(-1px);
+background: #e6f1e0 !important;
+}
+
+.bw-alert-icon {
+margin-top: 2px !important;
+margin-bottom: 2px !important;
+border-width: 3px !important;
+}
+
+/* progress bar */
+.swal2-timer-progress-bar {
+background: linear-gradient(90deg, #a6c97f 0%, #9d4750 100%) !important;
+height: 4px !important;
+}
+
+/* backdrop */
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-noanimation {
+background: rgba(58, 47, 42, 0.34) !important;
+backdrop-filter: blur(3px);
+-webkit-backdrop-filter: blur(3px);
+}
+
+/* =========================
+SWEETALERT ANIMATIONS
+========================= */
+
+@keyframes bwPopupShow {
+0% {
+opacity: 0;
+transform: translateY(18px) scale(0.96);
+}
+100% {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+}
+
+@keyframes bwPopupHide {
+0% {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+100% {
+opacity: 0;
+transform: translateY(12px) scale(0.97);
+}
+}
+
+@keyframes bwBackdropShow {
+0% {
+opacity: 0;
+}
+100% {
+opacity: 1;
+}
+}
+
+@keyframes bwBackdropHide {
+0% {
+opacity: 1;
+}
+100% {
+opacity: 0;
+}
+}
+
+@keyframes bwIconShow {
+0% {
+opacity: 0;
+transform: scale(0.82);
+}
+100% {
+opacity: 1;
+transform: scale(1);
+}
+}
+
+@keyframes bwIconHide {
+0% {
+opacity: 1;
+transform: scale(1);
+}
+100% {
+opacity: 0;
+transform: scale(0.88);
+}
+}
+
+.bw-swal-show {
+animation: bwPopupShow 0.22s ease-out forwards;
+}
+
+.bw-swal-hide {
+animation: bwPopupHide 0.16s ease-in forwards;
+}
+
+.bw-swal-backdrop-show {
+animation: bwBackdropShow 0.18s ease-out forwards;
+}
+
+.bw-swal-backdrop-hide {
+animation: bwBackdropHide 0.14s ease-in forwards;
+}
+
+.bw-swal-icon-show {
+animation: bwIconShow 0.24s ease-out forwards;
+}
+
+.bw-swal-icon-hide {
+animation: bwIconHide 0.14s ease-in forwards;
+}
+
+@media (max-width: 640px) {
+.bw-alert-popup {
+border-radius: 24px !important;
+padding: 22px 18px 18px !important;
+}
+
+.bw-alert-title {
+font-size: 24px !important;
+}
+
+.bw-alert-confirm,
+.bw-alert-cancel {
+min-width: 100px;
+height: 42px;
+font-size: 13px !important;
+}
+}

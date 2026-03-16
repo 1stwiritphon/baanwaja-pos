@@ -1,5 +1,12 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const props = defineProps({
   open: Boolean,
@@ -109,7 +116,7 @@ const previewPrice = computed(() => calculatePrice())
 
 function handleAdd() {
   if (props.menu?.allow_protein && !selectedProtein.value) {
-    alert('กรุณาเลือกเนื้อสัตว์')
+    showWarning('กรุณาเลือกเนื้อสัตว์')
     return
   }
 

@@ -2,6 +2,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const router = useRouter()
 
@@ -11,7 +18,7 @@ const loading = ref(false)
 
 async function handleLogin() {
   if (!username.value || !password.value) {
-    alert('กรอก username และ password')
+    showWarning('กรอก username และ password')
     return
   }
 
@@ -27,7 +34,7 @@ async function handleLogin() {
 
   if (error || !data) {
     console.error(error)
-    alert('username หรือ password ไม่ถูกต้อง')
+    showError('username หรือ password ไม่ถูกต้อง')
     loading.value = false
     return
   }

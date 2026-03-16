@@ -6,6 +6,14 @@ import { fetchCurrentMenus, fetchMenuOptions } from '../lib/menuDataService'
 import MenuOptionModal from '../components/MenuOptionModal.vue'
 import AppTopActions from '../components/AppTopActions.vue'
 
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
+
 const route = useRoute()
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -78,7 +86,7 @@ async function loadMenuData() {
     extras.value = options.extras
   } catch (error) {
     console.error(error)
-    alert('โหลดเมนูไม่สำเร็จ')
+    showError('โหลดเมนูไม่สำเร็จ')
   }
 }
 
@@ -92,13 +100,13 @@ async function fetchBill() {
     .single()
 
   if (billError || !billData) {
-    alert('โหลดบิลไม่สำเร็จ')
+    showError('โหลดบิลไม่สำเร็จ')
     loading.value = false
     return
   }
 
   if (billData.status === 'cancelled') {
-    alert('บิลนี้ถูกยกเลิกแล้ว')
+    showSuccess('บิลนี้ถูกยกเลิกแล้ว')
     router.back()
     return
   }
@@ -112,7 +120,7 @@ async function fetchBill() {
     .order('created_at', { ascending: true })
 
   if (itemsError) {
-    alert('โหลดรายการในบิลไม่สำเร็จ')
+    showError('โหลดรายการในบิลไม่สำเร็จ')
     loading.value = false
     return
   }
@@ -167,7 +175,7 @@ function addCustomItem() {
   const price = Number(customItemForm.value.price)
 
   if (!name || !price || price <= 0) {
-    alert('กรอกชื่อและราคาเมนูพิเศษให้ถูกต้อง')
+    showWarning('กรอกชื่อและราคาเมนูพิเศษให้ถูกต้อง')
     return
   }
 
@@ -195,7 +203,7 @@ async function saveBillChanges() {
   if (!bill.value) return
 
   if (!cart.value.length) {
-    alert('บิลต้องมีอย่างน้อย 1 รายการ')
+    showWarning('บิลต้องมีอย่างน้อย 1 รายการ')
     return
   }
 
@@ -212,7 +220,7 @@ async function saveBillChanges() {
     .eq('id', billId)
 
   if (billError) {
-    alert('อัปเดตบิลไม่สำเร็จ')
+    showError('อัปเดตบิลไม่สำเร็จ')
     saving.value = false
     return
   }
@@ -223,7 +231,7 @@ async function saveBillChanges() {
     .eq('sale_id', billId)
 
   if (deleteError) {
-    alert('ลบรายการเดิมไม่สำเร็จ')
+    showError('ลบรายการเดิมไม่สำเร็จ')
     saving.value = false
     return
   }
@@ -241,12 +249,12 @@ async function saveBillChanges() {
     .insert(itemsPayload)
 
   if (insertError) {
-    alert('บันทึกรายการใหม่ไม่สำเร็จ')
+    showError('บันทึกรายการใหม่ไม่สำเร็จ')
     saving.value = false
     return
   }
 
-  alert('แก้ไขบิลสำเร็จ')
+  showSuccess('แก้ไขบิลสำเร็จ')
   router.push(user?.role === 'admin' ? '/admin/dashboard' : '/pos')
 }
 

@@ -4,6 +4,13 @@ import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { getBusinessDate } from '../lib/businessDate'
 import AppTopActions from '../components/AppTopActions.vue'
+import {
+showSuccess,
+showError,
+showWarning,
+showConfirm,
+showDeleteConfirm
+} from "../lib/alertService"
 
 const router = useRouter()
 const user = JSON.parse(localStorage.getItem('user') || 'null')
@@ -24,7 +31,7 @@ const category = form.value.category.trim()
 const note = form.value.note.trim()
 
 if (!title || !amount || amount <= 0 || !category) {
-alert('กรอกชื่อรายการ จำนวนเงิน และหมวดหมู่ให้ถูกต้อง')
+showWarning('กรอกชื่อรายการ จำนวนเงิน และหมวดหมู่ให้ถูกต้อง')
 return
 }
 
@@ -40,12 +47,12 @@ created_by: user?.username || null,
 })
 
 if (error) {
-alert(`บันทึกรายจ่ายไม่สำเร็จ: ${error.message}`)
+showError(`บันทึกรายจ่ายไม่สำเร็จ: ${error.message}`)
 saving.value = false
 return
 }
 
-alert('บันทึกรายจ่ายเรียบร้อย')
+showSuccess('บันทึกรายจ่ายเรียบร้อย')
 
 form.value = {
 title: '',
